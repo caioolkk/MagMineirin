@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="pt-BR" id="html">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mag Mineirin - Bar e Restaurante</title>
+  <meta name="description" content="Pratos mineiros autênticos, espumantes e saborosos. Venha saborear o melhor da culinária mineira!" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ==================== CORES ==================== */
+    :root {
+      --primary: #8B0000; /* Vermelho escuro (mineiro) */
+      --primary-dark: #5D0000;
+      --secondary: #FFD700; /* Dourado (luxo) */
+      --bg: #f9f9f9;
+      --text: #333;
+      --card: #ffffff;
+      --shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+      --success: #28a745;
+      --border: #ddd;
+      --toast-bg: #4CAF50;
+      --progress: #8B0000;
+      --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .dark-mode {
+      --bg: #1a1a1a;
+      --text: #f0f0f0;
+      --card: #2a2a2a;
+      --border: #444;
+      --shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: var(--transition);
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ==================== ANIMAÇÕES ==================== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes toastSlideIn {
+      from {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes toastSlideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+    }
+
+    @keyframes whatsappPulse {
+      0% { transform: scale(1); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
+      50% { transform: scale(1.08); box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6); }
+      100% { transform: scale(1); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s, transform 0.8s;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* ==================== TOAST (SUPERIOR DIREITO) ==================== */
+    .toast {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      max-width: 350px;
+      background: var(--toast-bg);
+      color: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1200;
+      transform: translateX(120%);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s;
+      font-size: 1rem;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .toast i {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    /* ==================== NOTIFICAÇÃO SUPERIOR ==================== */
+    .alert-bar {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.95rem;
+      padding: 8px;
+      z-index: 998;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    /* ==================== PROGRESS BAR ==================== */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--progress);
+      width: 0%;
+      z-index: 1001;
+    }
+
+    /* ==================== CABEÇALHO ==================== */
+    header {
+      background: rgba(139, 0, 0, 0.98);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: white;
+      padding: 1rem 5%;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      margin: 0 auto;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+    }
+
+    .cart-icon {
+      position: relative;
+      font-size: 1.4rem;
+      color: white;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -6px;
+      right: -8px;
+      background: var(--secondary);
+      color: white;
+      font-size: 0.8rem;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ==================== HERO ==================== */
+    .hero {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1518772943812-5d5b5337c513?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+      padding: 0 20px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.8rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .typed-text {
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      padding: 14px 35px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      box-shadow: 0 6px 15px rgba(139, 0, 0, 0.4);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(139, 0, 0, 0.6);
+    }
+
+    /* ==================== SEÇÕES ==================== */
+    .menu-section,
+    .location {
+      padding: 100px 5%;
+      background: var(--bg);
+    }
+
+    .section-title {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 4px;
+      background: var(--secondary);
+      margin: 10px auto;
+      border-radius: 2px;
+    }
+
+    /* Abas de Categorias */
+    .category-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 12px 28px;
+      background: #f8f8f8;
+      border: 2px solid #ddd;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .dark-mode .tab {
+      background: #333;
+      border-color: #555;
+      color: #f0f0f0;
+    }
+
+    .tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .dark-mode .tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .tab:hover:not(.active) {
+      background: #e8e8e8;
+      border-color: #bbb;
+    }
+
+    .dark-mode .tab:hover:not(.active) {
+      background: #444;
+      border-color: #666;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .menu-item {
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.4s, box-shadow 0.4s;
+    }
+
+    .menu-item:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .menu-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .menu-item:hover img {
+      transform: scale(1.05);
+    }
+
+    .menu-item .info {
+      padding: 22px;
+    }
+
+    .menu-item .info h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+
+    .menu-item .info p {
+      color: #666;
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+    }
+
+    .menu-item .price {
+      font-weight: bold;
+      color: var(--secondary);
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .quantity-btn {
+      width: 40px;
+      height: 40px;
+      background: #f1f1f1;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .dark-mode .quantity-btn {
+      background: #444;
+      color: #f0f0f0;
+    }
+
+    .quantity-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .quantity {
+      font-size: 1.2rem;
+      font-weight: bold;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .add-to-cart {
+      display: block;
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .add-to-cart:hover {
+      background: var(--primary-dark);
+    }
+
+    /* ==================== CARRINHO ==================== */
+    .cart-sidebar {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 400px;
+      height: 100vh;
+      background: var(--card);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+      z-index: 1100;
+      transition: right 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      overflow-y: auto;
+      padding: 30px 20px;
+    }
+
+    .cart-sidebar.open {
+      right: 0;
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .cart-header h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--primary);
+      font-size: 1.6rem;
+    }
+
+    .close-cart {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #999;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .close-cart:hover {
+      background: #f1f1f1;
+      color: #333;
+      transform: scale(1.1);
+    }
+
+    .dark-mode .close-cart:hover {
+      background: #444;
+    }
+
+    .cart-items {
+      margin-bottom: 30px;
+    }
+
+    .cart-item {
+      display: flex;
+      gap: 15px;
+      padding: 15px 0;
+      border-bottom: 1px dashed #eee;
+    }
+
+    .dark-mode .cart-item {
+      border-bottom-color: #444;
+    }
+
+    .cart-item img {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-info h4 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .cart-item-price {
+      color: var(--secondary);
+      font-weight: bold;
+    }
+
+    .cart-item-quantity {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .empty-cart {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 40px 0;
+    }
+
+    .cart-total {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--secondary);
+      text-align: right;
+      margin: 25px 0;
+      padding: 15px 0;
+      border-top: 2px solid var(--border);
+    }
+
+    .checkout-btn {
+      display: block;
+      width: 100%;
+      background-color: var(--success);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .checkout-btn:hover {
+      background: #218838;
+    }
+
+    /* ==================== LOCALIZAÇÃO ==================== */
+    .location-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-hover);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .location-info {
+      padding: 30px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dark-mode .location-info {
+      border-bottom-color: #444;
+    }
+
+    .location-info p {
+      margin: 12px 0;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+
+    .location-info strong {
+      color: var(--primary);
+    }
+
+    .map-container {
+      height: 550px;
+      border-radius: 0 0 20px 20px;
+      overflow: hidden;
+    }
+
+    .map-container iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* ==================== RODAPÉ ==================== */
+    footer {
+      background: #222;
+      color: white;
+      text-align: center;
+      padding: 40px 5% 30px;
+    }
+
+    footer .social-icons {
+      margin-top: 15px;
+      font-size: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    footer a {
+      color: white;
+      transition: color 0.3s;
+    }
+
+    footer a:hover {
+      color: var(--secondary);
+    }
+
+    /* ==================== WHATSAPP ==================== */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: #25D366;
+      color: white;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2.2rem;
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+      z-index: 1000;
+      cursor: pointer;
+      animation: whatsappPulse 2s infinite;
+      transition: transform 0.3s;
+    }
+
+    .whatsapp-float:hover {
+      transform: scale(1.15) rotate(5deg);
+    }
+
+    /* ==================== RESPONSIVO ==================== */
+    @media (max-width: 768px) {
+      .scroll-progress { height: 3px; }
+      .cart-sidebar { width: 100%; right: -100%; }
+      .hero h1 { font-size: 2.8rem; }
+      .location-info { padding: 20px; font-size: 1rem; }
+      .map-container { height: 400px; }
+      .toast {
+        top: 70px;
+        right: 15px;
+        max-width: 300px;
+        font-size: 0.95rem;
+        padding: 14px 18px;
+      }
+      .section-title {
+        font-size: 2.2rem;
+      }
+      .menu-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PROGRESS BAR -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- ALERTA SUPERIOR -->
+  <div class="alert-bar fade-in">
+    ⏰ Aberto de Terça a Sábado, 17h às 23h! Peça já!
+  </div>
+
+  <!-- CABEÇALHO -->
+  <header id="header" class="fade-in">
+    <div class="header-container">
+      <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+      </button>
+      <a href="#home" class="logo">Mag Mineirin</a>
+      <div class="cart-icon" id="cartIcon">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div class="hero-content fade-in">
+      <h1>Mag Mineirin</h1>
+      <p class="typed-text" id="typedText"></p>
+      <a href="#cardapio" class="btn">Ver Cardápio</a>
+    </div>
+  </section>
+
+  <!-- CARDÁPIO -->
+  <section id="cardapio" class="menu-section">
+    <h2 class="section-title fade-in">Nosso Cardápio</h2>
+    <div class="category-tabs fade-in">
+      <div class="tab active" data-category="pratos-mag">Pratos Mag-Nílicos</div>
+      <div class="tab" data-category="executivos">Pratos Executivos</div>
+      <div class="tab" data-category="boteco">Comidas de Boteco</div>
+      <div class="tab" data-category="espetinhos">Espetinhos</div>
+      <div class="tab" data-category="cafezin">Cafézinho</div>
+      <div class="tab" data-category="bebidas">Bebidas Diversas</div>
+    </div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </section>
+
+  <!-- CARRINHO -->
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>Seu Pedido</h3>
+      <button class="close-cart" id="closeCart">×</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-total" id="cartTotal">Total: R$ 0,00</div>
+    <button class="checkout-btn" id="checkoutBtn">
+      <i class="fab fa-whatsapp"></i> Fazer Pedido no WhatsApp
+    </button>
+  </div>
+
+  <!-- LOCALIZAÇÃO -->
+  <section id="localizacao" class="location fade-in">
+    <h2 class="section-title">Onde Nos Encontrar</h2>
+    <div class="location-container">
+      <div class="location-info">
+        <p><strong>📍 Endereço:</strong> R. Gen. Salgado, 423 - Boa Viagem, Recife - PE, 51130-320</p>
+        <p><strong>⏰ Horário:</strong> Terça a Sábado, das <strong>11h às 23h</strong> |  Domingo, das <strong> 11h às 22h</strong></p>
+        <p><strong>📞 WhatsApp:</strong> <a href="https://wa.me/5581991147025" style="color: var(--primary); text-decoration: underline;">(81) 99114-7025</a></p>
+        <p><strong>📸 Siga no Instagram:</strong> 
+          <a href="https://www.instagram.com/magmineirin" target="_blank" style="color: var(--primary); text-decoration: underline;">@magmineirin</a>
+        </p>
+      </div>
+      <div class="map-container">
+       <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.6046272173403!2d-34.91052038937247!3d-8.141670081496132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7ab1f80a1bfb751%3A0x6ac816671d140042!2sMag%20Mineirin%20-%20Bar%20e%20Restaurante!5e0!3m2!1spt-BR!2sbr!4v1756773784262!5m2!1spt-BR!2sbr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- RODAPÉ -->
+  <footer>
+    <p>&copy; 2025 Mag Mineirin - Todos os direitos reservados</p>
+    <div class="social-icons">
+      <a href="https://www.instagram.com/magmineirin" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://wa.me/5581991147025" target="_blank"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </footer>
+
+  <!-- WHATSAPP -->
+  <a href="https://wa.me/5581991147025" class="whatsapp-float" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <!-- JAVASCRIPT -->
+  <script>
+  // ==================== ITENS DO CARDÁPIO ====================
+  const menuItems = [
+    // PRATOS MAG-NÍLICOS
+    { id: 1, name: "Baú de Dois", price: 59.90, img: "https://irp.cdn-website.com/33406c6e/dms3rep/multi/baiao+de+dois.jpg", desc: "Arroz com feijão verde, puxado na manteiga de garrafa e noinho, com charque, linguiça, bacon e queijo coalho.", category: "pratos-mag" },
+    { id: 2, name: "Cabrito Guisado", price: 69.90, img: "https://sabores-new.s3.amazonaws.com/public/2024/11/guisado-de-cabrito-com-maxixe.jpg", desc: "Cabrito temperado e cozido à moda sertaneja. Acompanha feijão verde ou pirão, farofa e vinagrete.", category: "pratos-mag" },
+    { id: 3, name: "Chambaril", price: 85.90, img: "https://www.sabornamesa.com.br/media/k2/items/cache/fbe0cb468ebf47784fd8b26af4021e7e_XL.jpg", desc: "Acompanha pirão cremoso, arroz branco, legumes cozidos e farofa.", category: "pratos-mag" },
+    { id: 4, name: "Charque à Moda da Casa", price: 89.90, img: "https://reidacharque.primecomerce.store/_core/_uploads/182/2024/03/1151040324gd6ahgfbf6.jpeg", desc: "Charque desfiada puxada na manteiga da terra com cebola e alho servida com feijão verde, arroz branco, farofa de ovo, macaxeira frita e vinagrete.", category: "pratos-mag" },
+    { id: 5, name: "Costela de Novilho Guisada", price: 79.90, img: "https://i.ytimg.com/vi/a2HhEpy-j4I/sddefault.jpg", desc: "Costela de novilho temperada à moda caipira, cozida lentamente, servida com feijão verde, arroz branco, farofa e vinagrete.", category: "pratos-mag" },
+    { id: 6, name: "Costela de Novilho ao Forno", price: 85.90, img: "https://i.ytimg.com/vi/WLa2fbKVI_M/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDfVKZ1M8knt405x40cH5Eze3kgRQ", desc: "Costela bovina, temperada à moda, cozida lentamente e assada em fogo brando.", category: "pratos-mag" },
+    { id: 7, name: "Panceta à Pururucã", price: 95.90, img: "https://acarnequeomundoprefere.com.br/uploads/media/image/AF_FRI006620AM_Thumb_Youtube_Panceta_a011.png", desc: "Panceta de porco, marinada, cozida e assada e posteriormente 'pururucada' em forno alto. Acompanha feijão verde, arroz alegre, farofa de ovo, macaxeira frita e vinagrete.", category: "pratos-mag" },
+
+    // PRATOS EXECUTIVOS
+    { id: 8, name: "Bisteca Grelhada com Tropeiro", price: 35.90, img: "https://maiscarnesuina.com.br/wp-content/uploads/2017/04/Bisteca-a-mineira01-750x501.jpg", desc: "Marinada com temperos finos e vinho, grelhada na banha suína. Acompanha arroz branco e feijão tropeiro.", category: "executivos" },
+    { id: 9, name: "Bife ou Frango à Parmegiana", price: 29.90, img: "https://bakeandcakegourmet.com.br/uploads/site/receitas/file-de-frango-a-parmegiana-sem-trigo-e-sem-fritar-gjp5xzgy.jpg", desc: "Servido com espaguete e purê de batatas.", category: "executivos" },
+    { id: 10, name: "Carne de Sol", price: 29.90, img: "https://t2.rg.ltmcdn.com/pt/images/5/7/0/carne_de_sol_ao_vinho_3075_600.jpg", desc: "Servida com feijão verde, arroz alegre, farofa de ovos, vinagrete e batatas fritas.", category: "executivos" },
+    { id: 11, name: "Costelas de Porco com Tropeiro", price: 36.90, img: "https://www.guiadasemana.com.br/contentFiles/image/2018/07/25/1037999/costela-suina-com-feijao-tropeiro-1037999.jpg", desc: "Marinada com temperos finos e vinho, grelhada na banha suína. Acompanha arroz branco e feijão tropeiro.", category: "executivos" },
+    { id: 12, name: "Peito de Frango Grelhado", price: 22.90, img: "https://www.tudogostoso.com.br/receitas/229281-peito-de-frango-grelhado-com-tempero-caseiro.jpg", desc: "Servido com arroz branco, feijão verde, farofa e vinagrete.", category: "executivos" },
+    { id: 13, name: "Filé de Tilápia Grelhada", price: 29.90, img: "https://www.sabornamesa.com.br/media/k2/items/cache/6585189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865189865......", desc: "Servida com arroz branco, purê de batatas e vinagrete. Pode sair também com legumes sauté.", category: "executivos" },
+    { id: 14, name: "Fígado Acebolado", price: 24.90, img: "https://www.tudogostoso.com.br/receitas/245350-figado-acebolado.jpg", desc: "Servido com arroz branco, feijão verde, farofa e vinagrete.", category: "executivos" },
+    { id: 15, name: "Frango à Cubana", price: 29.90, img: "https://www.tudogostoso.com.br/receitas/208138-frango-a-cubana.jpg", desc: "Peito de frango empanado. Acompanha banana empanada, arroz alegre e batata frita.", category: "executivos" },
+    { id: 16, name: "Bife à Cavalo", price: 31.90, img: "https://www.tudogostoso.com.br/receitas/223651-bife-a-cavalo.jpg", desc: "Acompanha arroz alegre, feijão verde ou mulatinho, farofa, vinagrete e batata frita.", category: "executivos" },
+    { id: 17, name: "Strogonoff de Frango", price: 29.90, img: "https://www.tudogostoso.com.br/receitas/236585-strogonoff-de-frango-facil.jpg", desc: "Iscas de peito de frango cozidas com creme de leite, catchup e champignons. Acompanha arroz branco e batata frita.", category: "executivos" },
+    { id: 18, name: "Strogonoff de Carne", price: 31.90, img: "https://www.tudogostoso.com.br/receitas/236585-strogonoff-de-carne-facil.jpg", desc: "Iscas de carne cozidas com creme de leite, catchup e champignons. Acompanha arroz branco e batata frita.", category: "executivos" },
+    { id: 19, name: "Cumpim ao Molho", price: 29.90, img: "https://www.sabornamesa.com.br/media/k2/items/cache/7e4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4......", desc: "Cupim assado ao molho madeira. Acompanha arroz branco, feijão verde ou mulatinho, batata frita, farofa e vinagrete.", category: "executivos" },
+    { id: 20, name: "Picadinho", price: 25.90, img: "https://www.tudogostoso.com.br/receitas/235233-picadinho-com-arroz-e-feijao.jpg", desc: "Cubes de carne bovina cozidos com legumes. Acompanha arroz branco, batata frita, farofa e vinagrete.", category: "executivos" },
+
+    // COMIDAS DE BOTECO
+    { id: 21, name: "Arrumadinho", price: 45.90, img: "https://s2-receitas.glbimg.com/MfYZ57vcZQZViq69cWpdEV-qeIM=/0x0:1117x1018/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_1f540e0b94d8437dbbc39d567a1dee68/internal_photos/bs/2024/E/r/a6spoaSsCMFzXdhiRnSQ/arrumadinho-charque-carne-de-sol-receita.jpeg", desc: "Tinha (batata palha, batata palha e cuscuz)", category: "boteco" },
+    { id: 22, name: "1/2 Arrumadinho", price: 32.90, img: "https://s2-receitas.glbimg.com/MfYZ57vcZQZViq69cWpdEV-qeIM=/0x0:1117x1018/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_1f540e0b94d8437dbbc39d567a1dee68/internal_photos/bs/2024/E/r/a6spoaSsCMFzXdhiRnSQ/arrumadinho-charque-carne-de-sol-receita.jpeg", desc: "", category: "boteco" },
+    { id: 23, name: "1/2 Arrumadinho de Bacalhau", price: 55.90, img: "https://i0.wp.com/www.receitasdemulher.com.br/wp-content/uploads/2024/01/arrumadinho-de-bacalhau.jpg", desc: "", category: "boteco" },
+    { id: 24, name: "Batata Frita", price: 22.90, img: "https://www.tudogostoso.com.br/receitas/235724-batata-frita-crocante.jpg", desc: "", category: "boteco" },
+    { id: 25, name: "Bolinho de Bacalhau - 10un", price: 29.90, img: "https://www.tudogostoso.com.br/receitas/235724-bolinho-de-bacalhau.jpg", desc: "", category: "boteco" },
+    { id: 26, name: "Cabrito Guisado", price: 53.90, img: "https://sabores-new.s3.amazonaws.com/public/2024/11/guisado-de-cabrito-com-maxixe.jpg", desc: "", category: "boteco" },
+    { id: 27, name: "Caldoinhos", price: 11.90, img: "https://i0.wp.com/www.receitasdemulher.com.br/wp-content/uploads/2024/01/caldo-de-feijao.jpg", desc: "(feijão, feijoada, dobradinha e cuscuz)", category: "boteco" },
+    { id: 28, name: "Camarão ao Alho e Óleo - 500g", price: 49.90, img: "https://www.tudogostoso.com.br/receitas/235724-camarao-ao-alho-e-oleo.jpg", desc: "", category: "boteco" },
+    { id: 29, name: "Carne de Sol com Fritas", price: 55.90, img: "https://t2.rg.ltmcdn.com/pt/images/5/7/0/carne_de_sol_ao_vinho_3075_600.jpg", desc: "", category: "boteco" },
+    { id: 30, name: "Cordeiro com Fritas", price: 64.90, img: "https://www.sabornamesa.com.br/media/k2/items/cache/5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e......", desc: "", category: "boteco" },
+    { id: 31, name: "Filé de Agulha Branca - 10un", price: 29.90, img: "https://www.sabornamesa.com.br/media/k2/items/cache/5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e......", desc: "", category: "boteco" },
+    { id: 32, name: "Charque à Moda da Casa", price: 75.90, img: "https://reidacharque.primecomerce.store/_core/_uploads/182/2024/03/1151040324gd6ahgfbf6.jpeg", desc: "", category: "boteco" },
+    { id: 33, name: "Filé Mignon com Fritas", price: 69.90, img: "https://www.sabornamesa.com.br/media/k2/items/cache/5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e5d9e......", desc: "", category: "boteco" },
+    { id: 34, name: "Frango à Passarinho com Fritas", price: 43.90, img: "https://www.tudogostoso.com.br/receitas/235724-frango-a-passarinho.jpg", desc: "", category: "boteco" },
+    { id: 35, name: "Macaxeira Frita", price: 22.90, img: "https://www.tudogostoso.com.br/receitas/235724-macaxeira-frita.jpg", desc: "", category: "boteco" },
+    { id: 36, name: "Omelete", price: 29.90, img: "https://www.tudogostoso.com.br/receitas/235724-omelete.jpg", desc: "(comedor geral)", category: "boteco" },
+    { id: 37, name: "Pastéis de Botóquim", price: 25.90, img: "https://www.tudogostoso.com.br/receitas/235724-pasteis-de-botoquim.jpg", desc: "", category: "boteco" },
+    { id: 38, name: "Rabada", price: 55.90, img: "https://www.tudogostoso.com.br/receitas/235724-rabada.jpg", desc: "", category: "boteco" },
+    { id: 39, name: "Torresminho", price: 14.90, img: "https://www.tudogostoso.com.br/receitas/235724-torresminho.jpg", desc: "", category: "boteco" },
+    { id: 40, name: "Torremos Pururuca (pele)", price: 12.90, img: "https://www.tudogostoso.com.br/receitas/235724-torremos-pururuca.jpg", desc: "", category: "boteco" },
+    { id: 41, name: "Torresmo de Panceta", price: 19.90, img: "https://www.tudogostoso.com.br/receitas/235724-torresmo-de-panceta.jpg", desc: "", category: "boteco" },
+    { id: 42, name: "Casquinha de Caranguejo", price: 12.90, img: "https://www.tudogostoso.com.br/receitas/235724-casquinha-de-caranguejo.jpg", desc: "", category: "boteco" },
+    { id: 43, name: "Coxinhas do Mag - 10un", price: 19.90, img: "https://www.tudogostoso.com.br/receitas/235724-coxinhas-do-mag.jpg", desc: "(porções de mini coxinhas)", category: "boteco" },
+    { id: 44, name: "Empadas", price: 11.90, img: "https://www.tudogostoso.com.br/receitas/235724-empadas.jpg", desc: "(queijo do reino e frango)", category: "boteco" },
+    { id: 45, name: "Camarão Empanado", price: 29.90, img: "https://www.tudogostoso.com.br/receitas/235724-camarao-empanado.jpg", desc: "", category: "boteco" },
+    { id: 46, name: "Sarapatel", price: 19.90, img: "https://www.tudogostoso.com.br/receitas/235724-sarapatel.jpg", desc: "", category: "boteco" },
+    { id: 47, name: "Calabresa c/Fritas", price: 19.90, img: "https://www.tudogostoso.com.br/receitas/235724-calabresa-com-fritas.jpg", desc: "", category: "boteco" },
+    { id: 48, name: "Bife à Parmegiana - Petisco", price: 24.90, img: "https://www.tudogostoso.com.br/receitas/235724-bife-a-parmegiana-petisco.jpg", desc: "", category: "boteco" },
+    { id: 49, name: "Fígado Acebolado", price: 15.90, img: "https://www.tudogostoso.com.br/receitas/245350-figado-acebolado.jpg", desc: "", category: "boteco" },
+    { id: 50, name: "Tábua de Frios", price: 39.90, img: "https://www.tudogostoso.com.br/receitas/235724-tabua-de-frios.jpg", desc: "", category: "boteco" },
+    { id: 51, name: "Asinha de Frango Empanado", price: 24.90, img: "https://www.tudogostoso.com.br/receitas/235724-asinha-de-frango-empanado.jpg", desc: "", category: "boteco" },
+
+    // ESPETINHOS
+    { id: 52, name: "Carne", price: 15.90, img: "https://www.tudogostoso.com.br/receitas/235724-espetinho-de-carne.jpg", desc: "", category: "espetinhos" },
+    { id: 53, name: "Carne com Bacon", price: 16.90, img: "https://www.tudogostoso.com.br/receitas/235724-espetinho-de-carne-com-bacon.jpg", desc: "", category: "espetinhos" },
+    { id: 54, name: "Carne de Sol", price: 16.90, img: "https://t2.rg.ltmcdn.com/pt/images/5/7/0/carne_de_sol_ao_vinho_3075_600.jpg", desc: "", category: "espetinhos" },
+    { id: 55, name: "Frango", price: 11.90, img: "https://www.tudogostoso.com.br/receitas/235724-espetinho-de-frango.jpg", desc: "", category: "espetinhos" },
+    { id: 56, name: "Frango com Bacon", price: 13.90, img: "https://www.tudogostoso.com.br/receitas/235724-espetinho-de-frango-com-bacon.jpg", desc: "", category: "espetinhos" },
+    { id: 57, name: "Toscana", price: 5.90, img: "https://www.tudogostoso.com.br/receitas/235724-espetinho-de-toscana.jpg", desc: "", category: "espetinhos" },
+    { id: 58, name: "Queijo Coalho", price: 14.90, img: "https://www.tudogostoso.com.br/receitas/235724-espetinho-de-queijo-coalho.jpg", desc: "", category: "espetinhos" },
+    { id: 59, name: "Pão de Alho - Porção", price: 14.90, img: "https://www.tudogostoso.com.br/receitas/235724-pao-de-alho-porcao.jpg", desc: "", category: "espetinhos" },
+    { id: 60, name: "Pão de Alho - 4 und", price: 14.90, img: "https://www.tudogostoso.com.br/receitas/235724-pao-de-alho-4-unidades.jpg", desc: "", category: "espetinhos" },
+
+    // CAFÉZIN
+    { id: 61, name: "Café com Leite", price: 5.90, img: "https://www.tudogostoso.com.br/receitas/235724-cafe-com-leite.jpg", desc: "", category: "cafezin" },
+    { id: 62, name: "Cappuccino", price: 5.90, img: "https://www.tudogostoso.com.br/receitas/235724-cappuccino.jpg", desc: "", category: "cafezin" },
+    { id: 63, name: "Expresso Pequeno", price: 4.90, img: "https://www.tudogostoso.com.br/receitas/235724-expresso-pequeno.jpg", desc: "", category: "cafezin" },
+
+    // BEBIDAS DIVERSAS
+    { id: 64, name: "Água de Coco", price: 7.90, img: "https://www.tudogostoso.com.br/receitas/235724-agua-de-coco.jpg", desc: "", category: "bebidas" },
+    { id: 65, name: "Água de Coco Jarra", price: 18.90, img: "https://www.tudogostoso.com.br/receitas/235724-agua-de-coco-jarra.jpg", desc: "", category: "bebidas" },
+    { id: 66, name: "Água Mineral S/Gás", price: 5.90, img: "https://www.tudogostoso.com.br/receitas/235724-agua-mineral-sem-gas.jpg", desc: "", category: "bebidas" },
+    { id: 67, name: "Água Mineral C/Gás", price: 5.90, img: "https://www.tudogostoso.com.br/receitas/235724-agua-mineral-com-gas.jpg", desc: "", category: "bebidas" },
+    { id: 68, name: "Água Tônica", price: 11.90, img: "https://www.tudogostoso.com.br/receitas/235724-agua-tonica.jpg", desc: "", category: "bebidas" },
+    { id: 69, name: "Caipirinha", price: 18.90, img: "https://www.tudogostoso.com.br/receitas/235724-caipirinha.jpg", desc: "", category: "bebidas" },
+    { id: 70, name: "Caipiruta", price: 24.90, img: "https://www.tudogostoso.com.br/receitas/235724-caipiruta.jpg", desc: "", category: "bebidas" },
+    { id: 71, name: "H2O", price: 7.90, img: "https://www.tudogostoso.com.br/receitas/235724-h2o.jpg", desc: "", category: "bebidas" },
+    { id: 72, name: "Limonada Suíça", price: 9.90, img: "https://www.tudogostoso.com.br/receitas/235724-limonada-suica.jpg", desc: "", category: "bebidas" },
+    { id: 73, name: "Schweppes Citrus", price: 6.90, img: "https://www.tudogostoso.com.br/receitas/235724-schweppes-citrus.jpg", desc: "", category: "bebidas" },
+    { id: 74, name: "Suco Jarra", price: 19.90, img: "https://www.tudogostoso.com.br/receitas/235724-suco-jarra.jpg", desc: "", category: "bebidas" },
+    { id: 75, name: "Sucos Frutas", price: 7.90, img: "https://www.tudogostoso.com.br/receitas/235724-sucos-de-frutas.jpg", desc: "", category: "bebidas" },
+    { id: 76, name: "Suco Polpa", price: 5.00, img: "https://www.tudogostoso.com.br/receitas/235724-suco-de-polpa.jpg", desc: "", category: "bebidas" },
+    { id: 77, name: "Redbull", price: 15.90, img: "https://www.tudogostoso.com.br/receitas/235724-redbull.jpg", desc: "", category: "bebidas" },
+    { id: 78, name: "Refrigerante Lata", price: 6.90, img: "https://www.tudogostoso.com.br/receitas/235724-refrigerante-lata.jpg", desc: "", category: "bebidas" }
+  ];
+
+    let cart = [];
+    let darkMode = false;
+
+    // Elementos
+    const cartIcon = document.getElementById('cartIcon');
+    const cartSidebar = document.getElementById('cartSidebar');
+    const closeCart = document.getElementById('closeCart');
+    const cartItems = document.getElementById('cartItems');
+    const cartTotal = document.getElementById('cartTotal');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const menuGrid = document.getElementById('menuGrid');
+    const tabs = document.querySelectorAll('.tab');
+    const themeToggle = document.getElementById('themeToggle');
+    const scrollProgress = document.getElementById('scrollProgress');
+    const typedText = document.getElementById('typedText');
+
+    // Animação de digitação
+    const phrases = ["Sabores mineiros autênticos", "Pratos tradicionais com toque moderno", "Vem pro Mag Mineirin"];
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    function type() {
+      const current = phrases[phraseIndex];
+      const full = isDeleting ? current.substring(0, charIndex - 1) : current.substring(0, charIndex + 1);
+      typedText.textContent = full;
+
+      if (!isDeleting && charIndex === current.length) {
+        setTimeout(() => isDeleting = true, 1500);
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+      }
+
+      charIndex += isDeleting ? -1 : 1;
+      const speed = isDeleting ? 50 : 100;
+      setTimeout(type, speed);
+    }
+    type();
+
+    // Animação ao rolar
+    const fadeElements = document.querySelectorAll('.fade-in');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    fadeElements.forEach(el => observer.observe(el));
+
+    // Renderizar cardápio
+    function renderMenu(category) {
+      menuGrid.innerHTML = '';
+      const filtered = menuItems.filter(item => item.category === category);
+      filtered.forEach(item => {
+        const menuItem = document.createElement('div');
+        menuItem.className = 'menu-item fade-in';
+        menuItem.innerHTML = `
+          <img src="${item.img}" alt="${item.name}">
+          <div class="info">
+            <h3>${item.name}</h3>
+            <p>${item.desc}</p>
+            <span class="price">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-id="${item.id}">−</button>
+              <span class="quantity">1</span>
+              <button class="quantity-btn plus" data-id="${item.id}">+</button>
+            </div>
+            <button class="add-to-cart" data-id="${item.id}">Adicionar ao Carrinho</button>
+          </div>
+        `;
+        menuGrid.appendChild(menuItem);
+        observer.observe(menuItem);
+      });
+
+      // Eventos de quantidade
+      document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const span = e.target.parentElement.querySelector('.quantity');
+          span.textContent = parseInt(span.textContent) + 1;
+        });
+      });
+
+      document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const span = e.target.parentElement.querySelector('.quantity');
+          if (parseInt(span.textContent) > 1) {
+            span.textContent = parseInt(span.textContent) - 1;
+          }
+        });
+      });
+
+      // Adicionar ao carrinho
+      document.querySelectorAll('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const id = parseInt(e.target.dataset.id);
+          const item = menuItems.find(i => i.id === id);
+          const qty = parseInt(btn.parentElement.querySelector('.quantity').textContent);
+          addToCart(item, qty);
+        });
+      });
+    }
+
+    // Tabs
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderMenu(tab.dataset.category);
+      });
+    });
+
+    // Inicializar
+    renderMenu('pratos-mag');
+
+    // Carrinho
+    function addToCart(item, qty) {
+      const existing = cart.find(i => i.id === item.id);
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        cart.push({ ...item, qty });
+      }
+      updateCart();
+      showToast(`✅ ${qty}x ${item.name} adicionado(s)!`);
+    }
+
+    function updateCart() {
+      cartItems.innerHTML = '';
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<div class="empty-cart">Seu carrinho está vazio</div>';
+      } else {
+        cart.forEach(item => {
+          const cartItem = document.createElement('div');
+          cartItem.className = 'cart-item';
+          cartItem.innerHTML = `
+            <img src="${item.img}" alt="${item.name}">
+            <div class="cart-item-info">
+              <h4>${item.name}</h4>
+              <div class="cart-item-price">R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}</div>
+              <div class="cart-item-quantity">
+                <button class="quantity-btn minus" data-id="${item.id}">−</button>
+                <span>${item.qty}</span>
+                <button class="quantity-btn plus" data-id="${item.id}">+</button>
+              </div>
+            </div>
+          `;
+          cartItems.appendChild(cartItem);
+        });
+
+        // Atualizar quantidade
+        document.querySelectorAll('.cart-item .minus').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            const item = cart.find(i => i.id === id);
+            if (item.qty > 1) {
+              item.qty--;
+            } else {
+              cart = cart.filter(i => i.id !== id);
+            }
+            updateCart();
+          });
+        });
+
+        document.querySelectorAll('.cart-item .plus').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            const item = cart.find(i => i.id === id);
+            item.qty++;
+            updateCart();
+          });
+        });
+      }
+
+      const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      cartTotal.textContent = `Total: R$ ${total.toFixed(2).replace('.', ',')}`;
+      document.querySelector('.cart-count').textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+    }
+
+    // Toast profissional
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+      document.body.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+      });
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          if (toast.parentElement) document.body.removeChild(toast);
+        }, 400);
+      }, 3000);
+    }
+
+    // Carrinho
+    cartIcon.addEventListener('click', () => {
+      cartSidebar.classList.add('open');
+    });
+
+    closeCart.addEventListener('click', () => {
+      cartSidebar.classList.remove('open');
+    });
+
+    // Checkout
+    checkoutBtn.addEventListener('click', () => {
+      if (cart.length === 0) return showToast('🛒 Seu carrinho está vazio!');
+      let message = 'Olá! Gostaria de pedir:\n\n';
+      cart.forEach(item => {
+        message += `${item.qty}x ${item.name} - R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}\n`;
+      });
+      const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      message += `\nTotal: R$ ${total.toFixed(2).replace('.', ',')}`;
+      const url = `https://wa.me/5581991147025?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    });
+
+    // Modo Escuro
+    themeToggle.addEventListener('click', () => {
+      darkMode = !darkMode;
+      document.documentElement.classList.toggle('dark-mode', darkMode);
+      themeToggle.innerHTML = darkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    });
+
+    // Progresso de Scroll
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.body.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollTop / docHeight) * 100;
+      scrollProgress.style.width = `${scrollPercent}%`;
+    });
+  </script>
+</body>
+</html>
